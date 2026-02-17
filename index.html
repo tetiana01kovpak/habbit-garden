@@ -9,6 +9,20 @@
 <body>
   <canvas id="garden"></canvas>
 
+  <!-- Auth overlay -->
+  <div id="auth-overlay" class="hidden">
+    <div id="auth-box">
+      <h2>Habit Garden</h2>
+      <form id="auth-form">
+        <input type="email" id="auth-email" placeholder="Email" required />
+        <input type="password" id="auth-password" placeholder="Password" required />
+        <button type="submit" id="auth-submit">Log In</button>
+      </form>
+      <p id="auth-error"></p>
+      <button id="auth-toggle">Need an account? Sign up</button>
+    </div>
+  </div>
+
   <!-- UI overlay -->
   <div id="ui">
     <h1>Habit Garden</h1>
@@ -17,6 +31,12 @@
       <input type="text" id="habit-input" placeholder="New habit..." required />
       <button type="submit">+ Add</button>
     </form>
+  </div>
+
+  <!-- Toolbar: share + logout -->
+  <div id="toolbar" style="display:none">
+    <button id="btn-share">Share</button>
+    <button id="btn-logout">Logout</button>
   </div>
 
   <!-- Plant detail panel (shown on click) -->
@@ -29,6 +49,6 @@
     <button id="detail-delete">Delete</button>
   </div>
 
-  <script type="module" src="/src/main.js"></script>
+  <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

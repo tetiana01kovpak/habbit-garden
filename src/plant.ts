@@ -1,6 +1,26 @@
 import * as THREE from 'three';
 
-function seededRandom(seed) {
+export interface Habit {
+  id: string;
+  name: string;
+  totalCompletions: number;
+  streakCount: number;
+  lastCompletedDate: string | null;
+}
+
+interface Palette {
+  stem: number;
+  leaf: number;
+  bloom: number;
+  glow: number;
+  accent: number;
+}
+
+type PlantType = 'flower' | 'tree' | 'cactus' | 'mushroom' | 'crystal';
+type RNG = () => number;
+type BuilderFn = (group: THREE.Group, growth: number, streak: number, pal: Palette, rng: RNG) => void;
+
+function seededRandom(seed: string): RNG {
   let h = 0;
   for (let i = 0; i < seed.length; i++)
     h = Math.imul(31, h) + seed.charCodeAt(i) | 0;
@@ -11,7 +31,7 @@ function seededRandom(seed) {
   };
 }
 
-const PALETTES = [
+const PALETTES: Palette[] = [
   { stem: 0x5a9a4a, leaf: 0x88dd88, bloom: 0xff88aa, glow: 0xff88aa, accent: 0xffffff },
   { stem: 0x4a8a5a, leaf: 0x78dd98, bloom: 0xffdd66, glow: 0xffdd66, accent: 0xfffde0 },
   { stem: 0x6a9a4a, leaf: 0xaaee66, bloom: 0xff8855, glow: 0xff8855, accent: 0xffddcc },
@@ -22,14 +42,14 @@ const PALETTES = [
   { stem: 0x5a8a6a, leaf: 0x99eedd, bloom: 0xff5588, glow: 0xff5588, accent: 0xffddee },
 ];
 
-const PLANT_TYPES = ['flower', 'tree', 'cactus', 'mushroom', 'crystal'];
+const PLANT_TYPES: PlantType[] = ['flower', 'tree', 'cactus', 'mushroom', 'crystal'];
 
-const lp = (r, d) => new THREE.IcosahedronGeometry(r, d);
+const lp = (r: number, d: number) => new THREE.IcosahedronGeometry(r, d);
 
-const mat = (color, opts = {}) =>
+const mat = (color: number, opts: Partial<THREE.MeshStandardMaterialParameters> = {}) =>
   new THREE.MeshStandardMaterial({ color, flatShading: true, roughness: 0.7, metalness: 0.05, ...opts });
 
-function addMound(group, growth, rng) {
+function addMound(group: THREE.Group, growth: number, rng: RNG): void {
   const m = new THREE.Mesh(lp(0.45, 1), mat(0x6b5540));
   m.scale.set(1.1, 0.35, 1.1);
   m.position.y = -0.1;
@@ -53,7 +73,7 @@ function addMound(group, growth, rng) {
   }
 }
 
-function buildFlower(group, growth, streak, pal, rng) {
+function buildFlower(group: THREE.Group, growth: number, streak: number, pal: Palette, rng: RNG): void {
   const segments = Math.min(growth, 7);
   const segH = 0.28 + rng() * 0.08;
   let y = 0;
@@ -109,7 +129,7 @@ function buildFlower(group, growth, streak, pal, rng) {
   }
 }
 
-function buildTree(group, growth, streak, pal, rng) {
+function buildTree(group: THREE.Group, growth: number, streak: number, pal: Palette, rng: RNG): void {
   const trunkH = 0.2 + growth * 0.15;
   const trunkR = 0.07 + growth * 0.005;
   const trunk = new THREE.Mesh(
@@ -147,7 +167,7 @@ function buildTree(group, growth, streak, pal, rng) {
   }
 }
 
-function buildCactus(group, growth, streak, pal, rng) {
+function buildCactus(group: THREE.Group, growth: number, streak: number, pal: Palette, rng: RNG): void {
   const mainH = 0.3 + growth * 0.18;
   const mainR = 0.1 + growth * 0.008;
   const body = new THREE.Mesh(
@@ -198,7 +218,7 @@ function buildCactus(group, growth, streak, pal, rng) {
   }
 }
 
-function buildMushroom(group, growth, streak, pal, rng) {
+function buildMushroom(group: THREE.Group, growth: number, streak: number, pal: Palette, rng: RNG): void {
   const stemH = 0.15 + growth * 0.1;
   const stemR = 0.04 + growth * 0.005;
   const stem = new THREE.Mesh(
@@ -209,7 +229,6 @@ function buildMushroom(group, growth, streak, pal, rng) {
   group.add(stem);
 
   const capR = 0.15 + growth * 0.025;
-  const capH = capR * 0.6;
   const cap = new THREE.Mesh(
     new THREE.SphereGeometry(capR, 6, 4, 0, Math.PI * 2, 0, Math.PI / 2),
     mat(pal.bloom, {
@@ -264,7 +283,7 @@ function buildMushroom(group, growth, streak, pal, rng) {
   }
 }
 
-function buildCrystal(group, growth, streak, pal, rng) {
+function buildCrystal(group: THREE.Group, growth: number, streak: number, pal: Palette, rng: RNG): void {
   const shardCount = Math.min(1 + growth, 7);
   const baseH = 0.2 + growth * 0.12;
 
@@ -307,9 +326,15 @@ function buildCrystal(group, growth, streak, pal, rng) {
   }
 }
 
-const builders = { flower: buildFlower, tree: buildTree, cactus: buildCactus, mushroom: buildMushroom, crystal: buildCrystal };
+const builders: Record<PlantType, BuilderFn> = {
+  flower: buildFlower,
+  tree: buildTree,
+  cactus: buildCactus,
+  mushroom: buildMushroom,
+  crystal: buildCrystal,
+};
 
-export function createPlant(habit) {
+export function createPlant(habit: Habit): THREE.Group {
   const rng = seededRandom(habit.id);
   const pal = PALETTES[Math.floor(rng() * PALETTES.length)];
   const type = PLANT_TYPES[Math.floor(rng() * PLANT_TYPES.length)];
@@ -333,10 +358,12 @@ export function createPlant(habit) {
   const done = habit.lastCompletedDate === new Date().toISOString().slice(0, 10);
   if (!done && habit.totalCompletions > 0) {
     group.traverse(child => {
-      if (child.isMesh) {
-        child.material = child.material.clone();
-        child.material.color.lerp(new THREE.Color(0x555555), 0.35);
-        child.material.emissiveIntensity *= 0.3;
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        const material = (mesh.material as THREE.MeshStandardMaterial).clone();
+        material.color.lerp(new THREE.Color(0x555555), 0.35);
+        material.emissiveIntensity *= 0.3;
+        mesh.material = material;
       }
     });
   }

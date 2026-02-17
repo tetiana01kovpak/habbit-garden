@@ -165,3 +165,126 @@ canvas {
   background: rgba(255, 60, 60, 0.12);
   color: #cc4444;
 }
+
+/* Auth overlay */
+#auth-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+}
+
+#auth-overlay.hidden {
+  display: none;
+}
+
+#auth-box {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 32px;
+  min-width: 300px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+#auth-box h2 {
+  font-size: 1.5rem;
+  color: #2a5a3a;
+  margin-bottom: 20px;
+}
+
+#auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#auth-form input {
+  padding: 10px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  background: rgba(255, 255, 255, 0.7);
+  color: #2a3a2a;
+}
+
+#auth-form input:focus {
+  border-color: #4a9a6a;
+}
+
+#auth-submit {
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #4a9a6a;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+#auth-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+#auth-error {
+  color: #cc4444;
+  font-size: 0.8rem;
+  margin-top: 8px;
+  min-height: 1.2em;
+}
+
+#auth-toggle {
+  margin-top: 12px;
+  border: none;
+  background: none;
+  color: #4a8a6a;
+  cursor: pointer;
+  font-size: 0.8rem;
+  text-decoration: underline;
+}
+
+/* Toolbar */
+#toolbar {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+}
+
+#toolbar button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+
+#btn-share {
+  background: rgba(255, 255, 255, 0.5);
+  color: #2a5a3a;
+}
+
+#btn-share:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+#btn-logout {
+  background: rgba(255, 255, 255, 0.3);
+  color: #5a5a5a;
+}
+
+#btn-logout:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
