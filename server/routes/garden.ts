@@ -1,46 +1,37 @@
 import { Router, Request, Response } from 'express';
-import db from '../db.js';
+import { User, Habit } from '../models/index.js';
 import { calculateStreak } from '../streak.js';
 
 const router = Router();
 
-interface HabitRow {
-  id: string;
-  name: string;
-}
+router.get('/:userId', async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
 
-interface CompletionRow {
-  completed_date: string;
-}
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
 
-router.get('/:userId', (req: Request, res: Response) => {
-  const { userId } = req.params;
+    const habits = await Habit.find({ user_id: userId }).lean();
 
-  const user = db.prepare('SELECT id FROM users WHERE id = ?').get(userId);
-  if (!user) {
-    res.status(404).json({ error: 'User not found' });
-    return;
+    const result = habits.map(habit => {
+      const completedDates = [...habit.completions].sort().reverse();
+
+      return {
+        id: habit._id,
+        name: habit.name,
+        totalCompletions: completedDates.length,
+        streakCount: calculateStreak(completedDates),
+        lastCompletedDate: completedDates[0] || null,
+      };
+    });
+
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error' });
   }
-
-  const habits = db.prepare('SELECT id, name FROM habits WHERE user_id = ?').all(userId) as HabitRow[];
-
-  const result = habits.map(habit => {
-    const dates = db
-      .prepare('SELECT completed_date FROM completions WHERE habit_id = ? ORDER BY completed_date DESC')
-      .all(habit.id) as CompletionRow[];
-
-    const completedDates = dates.map(d => d.completed_date);
-
-    return {
-      id: habit.id,
-      name: habit.name,
-      totalCompletions: completedDates.length,
-      streakCount: calculateStreak(completedDates),
-      lastCompletedDate: completedDates[0] || null,
-    };
-  });
-
-  res.json(result);
 });
 
 export default router;

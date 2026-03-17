@@ -1,30 +1,39 @@
 import express from 'express';
 import path from 'path';
-import './db.js'; // ensure schema is created on import
+import { connectDB } from './db.js';
 
 import authRoutes from './routes/auth.js';
 import habitRoutes from './routes/habits.js';
 import gardenRoutes from './routes/garden.js';
 
-const app = express();
-const PORT = Number(process.env.PORT) || 3000;
+async function start() {
+  await connectDB();
 
-app.use(express.json());
+  const app = express();
+  const PORT = Number(process.env.PORT) || 3000;
 
-// API routes
-app.use('/api/auth', authRoutes);
-app.use('/api/habits', habitRoutes);
-app.use('/api/garden', gardenRoutes);
+  app.use(express.json());
 
-// In production, serve the Vite-built frontend
-const distPath = path.join(process.cwd(), 'dist');
-app.use(express.static(distPath));
+  // API routes
+  app.use('/api/auth', authRoutes);
+  app.use('/api/habits', habitRoutes);
+  app.use('/api/garden', gardenRoutes);
 
-// SPA fallback — serves index.html for /garden/:userId and any other client routes
-app.get('*', (_req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
-});
+  // In production, serve the Vite-built frontend
+  const distPath = path.join(process.cwd(), 'dist');
+  app.use(express.static(distPath));
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  // SPA fallback — serves index.html for /garden/:userId and any other client routes
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+start().catch((err) => {
+  console.error('Failed to start server:', err);
+  process.exit(1);
 });

@@ -15,14 +15,13 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "better-sqlite3": "^12.6.2",
     "express": "^4.21.0",
     "jsonwebtoken": "^9.0.2",
+    "mongoose": "^9.2.4",
     "three": "^0.182.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
-    "@types/better-sqlite3": "^7.6.11",
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/three": "^0.182.0",
